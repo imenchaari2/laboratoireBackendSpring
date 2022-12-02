@@ -1,0 +1,25 @@
+spring:
+  cloud:
+#    gateway:
+#      routes:
+#        - id: r1
+#          uri: lb://MEMBER-SERVICE
+#          predicates:
+#            - Path=/api/member/**
+#        - id: r2
+#          uri: lb://article-service
+#          predicates:
+#            - Path=/api/article/**
+    discovery:
+      enabled: true
+
+  application:
+    name: gateway-service
+  main:
+    web-application-type: reactive
+server:
+  port: 8888
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
