@@ -180,7 +180,6 @@ public class MemberController {
     @DeleteMapping(value = "/deleteMember/{id}")
     public void deleteMember(@PathVariable Long id) {
         iMemberService.deleteMember(id);
-
     }
 
     @PutMapping(value = "/affectSupervisorToStudent/{idSupervisor}")
