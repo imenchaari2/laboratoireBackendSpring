@@ -99,6 +99,7 @@ public class MemberController {
     }
 
     @PostMapping(value = "/addStudent", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PreAuthorize("hasRole('ADMIN')")
     public Member addMemberStudent(@ModelAttribute("student") Student student,
                                    @RequestPart("cvFile") MultipartFile cvFile,
                                    @RequestPart("photoFile") MultipartFile photoFile
@@ -111,6 +112,7 @@ public class MemberController {
     }
 
     @PostMapping(value = "/addTeacherResearcher", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PreAuthorize("hasRole('ADMIN')")
 
     public Member addMemberTeacherResearcher(@ModelAttribute("teacher") TeacherResearcher teacherResearcher,
                                              @RequestParam("cvFile") MultipartFile cvFile,
@@ -123,26 +125,28 @@ public class MemberController {
         return iMemberService.addMember(teacherResearcher);
     }
 
-//    @PutMapping(value = "/updateStudent/{id}")
-//    public Member updateMember(@PathVariable Long id, Student student, @RequestParam("cvFile") MultipartFile cvFile,
-//                               @RequestParam("photoFile") MultipartFile photoFile) throws IOException {
-//        student.setId(id);
-//        String cvName = StringUtils.cleanPath(Objects.requireNonNull(cvFile.getOriginalFilename()));
-//        Path cvStorage = get("E:/gi3/lab-de-recherche/LabBackend/MS-Membre/cvTeachers/", cvName).toAbsolutePath().normalize();
-//        copy(cvFile.getInputStream(), cvStorage, REPLACE_EXISTING);
-//        String photoName = StringUtils.cleanPath(Objects.requireNonNull(photoFile.getOriginalFilename()));
-//        Path photoStorage = get("E:/gi3/lab-de-recherche/LabBackend/MS-Membre/photosTeachers/", photoName).toAbsolutePath().normalize();
-//        copy(photoFile.getInputStream(), photoStorage, REPLACE_EXISTING);
-//        return iMemberService.updateMember(student, cvName, photoName);
-//    }
-//    @PutMapping(value = "/updateTeacherResearcher/{id}")
-//    public Member updateMembre(@PathVariable Long id, @RequestBody TeacherResearcher teacherResearcher) {
-//        teacherResearcher.setId(id);
-//        return iMemberService.updateMember(teacherResearcher);
-//    }
+    @PutMapping(value = "/updateStudent/{id}")
+    public Member updateMember(@PathVariable Long id, Student student, @RequestParam("cvFile") MultipartFile cvFile,
+                               @RequestParam("photoFile") MultipartFile photoFile) throws IOException {
+        File img = new File(photoFile.getOriginalFilename(), photoFile.getContentType(), photoFile.getBytes());
+        File cv = new File(cvFile.getOriginalFilename(), cvFile.getContentType(), cvFile.getBytes());
+        student.setPhoto(fileRepository.save(img));
+        student.setCv(fileRepository.save(cv));
+        student.setId(id);
+        return iMemberService.updateMember(student);
+    }
+    @PutMapping(value = "/updateTeacherResearcher/{id}")
+    public Member updateMembre(@PathVariable Long id, @ModelAttribute("teacher")TeacherResearcher teacherResearcher, @RequestParam("cvFile") MultipartFile cvFile,
+                               @RequestParam("photoFile") MultipartFile photoFile) throws IOException {
+        File img = new File(photoFile.getOriginalFilename(), photoFile.getContentType(), photoFile.getBytes());
+        File cv = new File(cvFile.getOriginalFilename(), cvFile.getContentType(), cvFile.getBytes());
+        teacherResearcher.setPhoto(fileRepository.save(img));
+        teacherResearcher.setCv(fileRepository.save(cv));
+        teacherResearcher.setId(id);
+        return iMemberService.updateMember(teacherResearcher);
+    }
 
     @GetMapping(value = "/members")
-    @PreAuthorize("hasRole('ADMIN')")
     public List<Member> findAllMembers() {
         return iMemberService.findAll();
     }
@@ -178,11 +182,13 @@ public class MemberController {
         return iMemberService.findMemberById(id);
     }
     @DeleteMapping(value = "/deleteMember/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public void deleteMember(@PathVariable Long id) {
         iMemberService.deleteMember(id);
     }
 
     @PutMapping(value = "/affectSupervisorToStudent/{idSupervisor}")
+    @PreAuthorize("hasRole('ADMIN')")
     public Member affectSupervisorToStudent(@RequestBody Student student, @PathVariable Long idSupervisor) {
         return iMemberService.affectSupervisorToStudent(student, idSupervisor);
     }

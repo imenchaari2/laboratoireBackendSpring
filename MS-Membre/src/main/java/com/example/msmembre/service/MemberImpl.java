@@ -40,7 +40,7 @@ public class MemberImpl implements IMemberService {
         m.setCreatedDate(new Date());
         m.setPassword(encoder.encode(m.getPassword()));
         System.out.println(m.getRole());
-        String role =m.getRole();
+        String role = m.getRole();
         switch (role) {
             case "admin" -> {
                 role = String.valueOf(ERole.ROLE_ADMIN);
@@ -66,13 +66,12 @@ public class MemberImpl implements IMemberService {
         memberRepository.deleteById(id);
     }
 
-//    public Member updateMember(Member m,String cv, String photo) {
-//        Member member = memberRepository.findById(m.getId()).get();
-//        m.setCreatedDate(member.getCreatedDate());
-//        m.setCv(cv);
-//        m.setPhoto(photo);
-//        return memberRepository.saveAndFlush(m);
-//    }
+    @Override
+    public Member updateMember(Member m) {
+        Member member = memberRepository.findById(m.getId()).get();
+        m.setCreatedDate(member.getCreatedDate());
+        return memberRepository.saveAndFlush(m);
+    }
 
     public List<Member> findAll() {
         return memberRepository.findAll();

@@ -15,7 +15,7 @@ public interface IMemberService {
 //    Member addMember(Member m,String cv, String photo);
     void deleteMember(Long id);
 
-//    Member updateMember(Member p,String cv, String photo);
+    Member updateMember(Member p);
 
     Optional<Member> findMemberById(Long id);
 
