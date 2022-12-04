@@ -25,15 +25,6 @@ public class ArticleController {
     ImpArticleService articleService;
     @Autowired
     MemberProxy memberProxy;
-
-    @GetMapping(value = "/members")
-    public List<MemberBean> getEmployees() {
-        return memberProxy.getAllMembers();
-    }
-    @GetMapping("/member/{id}")
-    MemberBean getMemberById(@PathVariable Long id){
-        return memberProxy.getMemberById(id);
-    }
     @PostMapping(value = "/addArticle")
     public Article addArticle(@RequestBody Article article){
         return articleService.addArticle(article);
