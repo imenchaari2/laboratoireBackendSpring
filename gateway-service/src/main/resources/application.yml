@@ -1,15 +1,12 @@
 spring:
   cloud:
-    #    gateway:
-    #      routes:
-    #        - id: r1
-    #          uri: lb://MEMBER-SERVICE
-    #          predicates:
-    #            - Path=/api/member/**
-    #        - id: r2
-    #          uri: lb://article-service
-    #          predicates:
-    #            - Path=/api/article/**
+    gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedHeaders: "*"
+            allowedMethods: "*"
     discovery:
       enabled: true
 
