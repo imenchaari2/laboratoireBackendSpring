@@ -1,4 +1,5 @@
 package com.example.msmembre.controller;
+
 import com.example.msmembre.entities.File;
 import com.example.msmembre.entities.Member;
 import com.example.msmembre.entities.Student;
@@ -16,13 +17,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.*;
 
 @RestController()
 @RequestMapping(path = "/api/member")
-@CrossOrigin()
 public class MemberController {
     @Autowired
     IMemberService iMemberService;
@@ -99,7 +100,7 @@ public class MemberController {
     }
 
     @PostMapping(value = "/addStudent", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     public Member addMemberStudent(@ModelAttribute("student") Student student,
                                    @RequestPart("cvFile") MultipartFile cvFile,
                                    @RequestPart("photoFile") MultipartFile photoFile
@@ -112,7 +113,7 @@ public class MemberController {
     }
 
     @PostMapping(value = "/addTeacherResearcher", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
 
     public Member addMemberTeacherResearcher(@ModelAttribute("teacher") TeacherResearcher teacherResearcher,
                                              @RequestParam("cvFile") MultipartFile cvFile,
@@ -126,24 +127,34 @@ public class MemberController {
     }
 
     @PutMapping(value = "/updateStudent/{id}")
-    public Member updateMember(@PathVariable Long id, Student student, @RequestParam("cvFile") MultipartFile cvFile,
-                               @RequestParam("photoFile") MultipartFile photoFile) throws IOException {
-        File img = new File(photoFile.getOriginalFilename(), photoFile.getContentType(), photoFile.getBytes());
-        File cv = new File(cvFile.getOriginalFilename(), cvFile.getContentType(), cvFile.getBytes());
-        student.setPhoto(fileRepository.save(img));
-        student.setCv(fileRepository.save(cv));
+    public Student updateMember(@PathVariable Long id, Student student, @RequestParam(value = "cvFile", required = false) MultipartFile cvFile,
+                                @RequestParam(value = "photoFile", required = false) MultipartFile photoFile) throws IOException {
+        if (photoFile != null ) {
+            File img = new File(photoFile.getOriginalFilename(), photoFile.getContentType(), photoFile.getBytes());
+            student.setPhoto(fileRepository.save(img));
+        }
+        if (cvFile != null) {
+            File cv = new File(cvFile.getOriginalFilename(), cvFile.getContentType(), cvFile.getBytes());
+            student.setCv(fileRepository.save(cv));
+        }
         student.setId(id);
-        return iMemberService.updateMember(student);
+        return iMemberService.updateStudent(student, cvFile, photoFile);
     }
+
     @PutMapping(value = "/updateTeacherResearcher/{id}")
-    public Member updateMembre(@PathVariable Long id, @ModelAttribute("teacher")TeacherResearcher teacherResearcher, @RequestParam("cvFile") MultipartFile cvFile,
-                               @RequestParam("photoFile") MultipartFile photoFile) throws IOException {
-        File img = new File(photoFile.getOriginalFilename(), photoFile.getContentType(), photoFile.getBytes());
-        File cv = new File(cvFile.getOriginalFilename(), cvFile.getContentType(), cvFile.getBytes());
-        teacherResearcher.setPhoto(fileRepository.save(img));
-        teacherResearcher.setCv(fileRepository.save(cv));
+    public TeacherResearcher updateMembre(@PathVariable Long id, @ModelAttribute("teacher") TeacherResearcher teacherResearcher,
+                                          @RequestParam(value = "cvFile", required = false) MultipartFile cvFile,
+                                          @RequestParam(value = "photoFile", required = false) MultipartFile photoFile) throws IOException {
+        if (photoFile != null ) {
+            File img = new File(photoFile.getOriginalFilename(), photoFile.getContentType(), photoFile.getBytes());
+            teacherResearcher.setPhoto(fileRepository.save(img));
+        }
+        if (cvFile != null) {
+            File cv = new File(cvFile.getOriginalFilename(), cvFile.getContentType(), cvFile.getBytes());
+            teacherResearcher.setCv(fileRepository.save(cv));
+        }
         teacherResearcher.setId(id);
-        return iMemberService.updateMember(teacherResearcher);
+        return iMemberService.updateTeacher(teacherResearcher,cvFile, photoFile);
     }
 
     @GetMapping(value = "/members")
@@ -169,18 +180,22 @@ public class MemberController {
     ) {
         return iMemberService.findByFirstNameAndLastNameAndCinAndEtablishmentAndGrade(firstName, lastName, cin, etablishment, grade);
     }
+
     @GetMapping(value = "/students")
     public List<Student> findAllStudents() {
         return iMemberService.findAllStudents();
     }
+
     @GetMapping(value = "/teachers")
     public List<TeacherResearcher> findAllTeachers() {
         return iMemberService.findAllTeachers();
     }
+
     @GetMapping(value = "/member/{id}")
     public Optional<Member> findMemberById(@PathVariable Long id) {
         return iMemberService.findMemberById(id);
     }
+
     @DeleteMapping(value = "/deleteMember/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public void deleteMember(@PathVariable Long id) {
@@ -188,7 +203,7 @@ public class MemberController {
     }
 
     @PutMapping(value = "/affectSupervisorToStudent/{idSupervisor}")
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     public Member affectSupervisorToStudent(@RequestBody Student student, @PathVariable Long idSupervisor) {
         return iMemberService.affectSupervisorToStudent(student, idSupervisor);
     }

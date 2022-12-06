@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
+import com.example.msmembre.entities.Admin;
 import com.example.msmembre.entities.ERole;
 import com.example.msmembre.entities.Member;
 import com.example.msmembre.entities.Student;
@@ -81,7 +82,7 @@ public class AuthController {
     }
 
     // Create new user's account
-    Member user = new Student(signUpRequest.getEmail(), encoder.encode(signUpRequest.getPassword()));
+    Member user = new Admin(signUpRequest.getEmail(), encoder.encode(signUpRequest.getPassword()));
 
     user.setRole(ERole.ROLE_ADMIN.name());
     memberRepository.save(user);

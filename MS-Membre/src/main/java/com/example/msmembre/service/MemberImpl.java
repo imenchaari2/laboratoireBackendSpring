@@ -9,6 +9,7 @@ import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -67,9 +68,36 @@ public class MemberImpl implements IMemberService {
     }
 
     @Override
-    public Member updateMember(Member m) {
+    public TeacherResearcher updateTeacher(TeacherResearcher m, MultipartFile cvFile, MultipartFile photoFile) {
         Member member = memberRepository.findById(m.getId()).get();
+        if (!m.getPassword().equals(member.getPassword())) {
+            m.setPassword(encoder.encode(m.getPassword()));
+        }
+        if (cvFile == null) {
+            m.setCv(member.getCv());
+        }
+        if (photoFile == null) {
+            m.setPhoto(member.getPhoto());
+        }
         m.setCreatedDate(member.getCreatedDate());
+        return memberRepository.saveAndFlush(m);
+    }
+
+    @Override
+    public Student updateStudent(Student m, MultipartFile cvFile, MultipartFile photoFile) {
+        Student member = studentRepository.findById(m.getId()).get();
+        m.setCreatedDate(member.getCreatedDate());
+        if (!m.getPassword().equals(member.getPassword())) {
+            m.setPassword(encoder.encode(m.getPassword()));
+
+        }
+        if (cvFile == null) {
+            m.setCv(member.getCv());
+        }
+        if (photoFile == null) {
+            m.setPhoto(member.getPhoto());
+        }
+        m.setSupervisor(member.getSupervisor());
         return memberRepository.saveAndFlush(m);
     }
 

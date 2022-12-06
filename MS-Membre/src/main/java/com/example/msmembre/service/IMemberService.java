@@ -15,8 +15,7 @@ public interface IMemberService {
 //    Member addMember(Member m,String cv, String photo);
     void deleteMember(Long id);
 
-    Member updateMember(Member p);
-
+    TeacherResearcher updateTeacher(TeacherResearcher p,MultipartFile cvFile, MultipartFile photoFile);
     Optional<Member> findMemberById(Long id);
 
     List<Member> findAll();
@@ -40,4 +39,5 @@ public interface IMemberService {
     Student affectSupervisorToStudent(Student student , Long idSupervisor);
 
 
+    Student updateStudent(Student student, MultipartFile cvFile, MultipartFile photoFile);
 }

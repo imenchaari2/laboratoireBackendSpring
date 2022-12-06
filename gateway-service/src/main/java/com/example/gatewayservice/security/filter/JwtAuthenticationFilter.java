@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -37,10 +38,11 @@ public class JwtAuthenticationFilter implements GatewayFilter {
 
 				return response.setComplete();
 			}
-
-			final String token = request.getHeaders().getOrEmpty("Authorization").get(0);
-
-			jwtUtil.validateJwtToken(token);
+			String headerAuth = request.getHeaders().getOrEmpty("Authorization").get(0);
+			if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {
+				headerAuth = headerAuth.substring(7, headerAuth.length());
+			}
+			jwtUtil.validateJwtToken(headerAuth);
 
 		}
 

@@ -24,4 +24,4 @@ bezkoder:
   app:
     jwtCookieName: bezkoder
     jwtSecret: bezKoderSecretKey
-    jwtExpirationMs: 86400000
+    jwtExpirationMs: 82219516
