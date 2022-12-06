@@ -107,8 +107,17 @@ public class MemberController {
     ) throws IOException {
         File img = new File(photoFile.getOriginalFilename(), photoFile.getContentType(), photoFile.getBytes());
         File cv = new File(cvFile.getOriginalFilename(), cvFile.getContentType(), cvFile.getBytes());
-        student.setPhoto(fileRepository.save(img));
-        student.setCv(fileRepository.save(cv));
+        if (fileRepository.findAll().contains(img)) {
+            student.setPhoto(img);
+        } else {
+            student.setPhoto(fileRepository.save(img));
+        }
+        if (fileRepository.findAll().contains(cv)) {
+            student.setCv(cv);
+
+        } else {
+            student.setCv(fileRepository.save(cv));
+        }
         return iMemberService.addMember(student);
     }
 
@@ -121,21 +130,39 @@ public class MemberController {
     ) throws IOException {
         File img = new File(photoFile.getOriginalFilename(), photoFile.getContentType(), photoFile.getBytes());
         File cv = new File(cvFile.getOriginalFilename(), cvFile.getContentType(), cvFile.getBytes());
-        teacherResearcher.setPhoto(fileRepository.save(img));
-        teacherResearcher.setCv(fileRepository.save(cv));
+        if (fileRepository.findAll().contains(img)) {
+            teacherResearcher.setPhoto(img);
+        } else {
+            teacherResearcher.setPhoto(fileRepository.save(img));
+        }
+        if (fileRepository.findAll().contains(cv)) {
+            teacherResearcher.setCv(cv);
+
+        } else {
+            teacherResearcher.setCv(fileRepository.save(cv));
+        }
         return iMemberService.addMember(teacherResearcher);
     }
 
     @PutMapping(value = "/updateStudent/{id}")
     public Student updateMember(@PathVariable Long id, Student student, @RequestParam(value = "cvFile", required = false) MultipartFile cvFile,
                                 @RequestParam(value = "photoFile", required = false) MultipartFile photoFile) throws IOException {
-        if (photoFile != null ) {
+        if (photoFile != null) {
             File img = new File(photoFile.getOriginalFilename(), photoFile.getContentType(), photoFile.getBytes());
-            student.setPhoto(fileRepository.save(img));
+            if (fileRepository.findAll().contains(img)) {
+                student.setPhoto(img);
+            } else {
+                student.setPhoto(fileRepository.save(img));
+            }
         }
         if (cvFile != null) {
             File cv = new File(cvFile.getOriginalFilename(), cvFile.getContentType(), cvFile.getBytes());
-            student.setCv(fileRepository.save(cv));
+            if (fileRepository.findAll().contains(cv)) {
+                student.setCv(cv);
+
+            } else {
+                student.setCv(fileRepository.save(cv));
+            }
         }
         student.setId(id);
         return iMemberService.updateStudent(student, cvFile, photoFile);
@@ -145,16 +172,23 @@ public class MemberController {
     public TeacherResearcher updateMembre(@PathVariable Long id, @ModelAttribute("teacher") TeacherResearcher teacherResearcher,
                                           @RequestParam(value = "cvFile", required = false) MultipartFile cvFile,
                                           @RequestParam(value = "photoFile", required = false) MultipartFile photoFile) throws IOException {
-        if (photoFile != null ) {
+        if (photoFile != null) {
             File img = new File(photoFile.getOriginalFilename(), photoFile.getContentType(), photoFile.getBytes());
-            teacherResearcher.setPhoto(fileRepository.save(img));
+            if (fileRepository.findAll().contains(img)) {
+                teacherResearcher.setPhoto(img);
+            } else {
+                teacherResearcher.setPhoto(fileRepository.save(img));
+            }
         }
         if (cvFile != null) {
             File cv = new File(cvFile.getOriginalFilename(), cvFile.getContentType(), cvFile.getBytes());
-            teacherResearcher.setCv(fileRepository.save(cv));
-        }
+            if (fileRepository.findAll().contains(cv)) {
+                teacherResearcher.setPhoto(cv);
+            } else {
+                teacherResearcher.setPhoto(fileRepository.save(cv));
+            }        }
         teacherResearcher.setId(id);
-        return iMemberService.updateTeacher(teacherResearcher,cvFile, photoFile);
+        return iMemberService.updateTeacher(teacherResearcher, cvFile, photoFile);
     }
 
     @GetMapping(value = "/members")
