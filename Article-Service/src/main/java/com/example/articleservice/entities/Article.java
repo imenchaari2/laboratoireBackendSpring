@@ -1,10 +1,10 @@
 package com.example.articleservice.entities;
 
-import com.example.articleservice.beans.MemberBean;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -25,13 +25,13 @@ public class Article {
     private String title;
     @NonNull
     private String type; //newspaper article/ event/book chapter/book/poster
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     @Temporal(TemporalType.DATE)
-    @NonNull
     private Date createdDate;
     @NonNull
     private String url;
-    @NonNull
-    private String pdfSource;
+    @OneToOne
+    private File pdfSource;
 //    @Transient
 //    private MemberBean author;
 }

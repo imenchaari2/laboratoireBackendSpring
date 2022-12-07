@@ -17,6 +17,7 @@ public class Student extends Member implements Serializable {
     @Temporal(TemporalType.DATE)
     private Date inscriptionDate;
     private String diploma;
+    private String type;
     @ManyToOne
     private TeacherResearcher supervisor;
     public Student( String email, String password) {

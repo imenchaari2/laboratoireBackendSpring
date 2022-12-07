@@ -20,7 +20,7 @@ public interface IMemberService {
 
     List<Member> findAll();
 
-    List<Student>findByFirstNameAndLastNameAndCinAndDiploma(String firstName,String lastName,String cin,String diploma);
+    List<Student>findByFirstNameAndLastNameAndCinAndType(String firstName,String lastName,String cin,String type);
     List<TeacherResearcher>findByFirstNameAndLastNameAndCinAndEtablishmentAndGrade(String firstName, String lastName,String cin,String etablishment,String grade);
 
 

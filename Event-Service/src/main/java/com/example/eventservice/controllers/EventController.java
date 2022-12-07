@@ -11,7 +11,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping(path = "/api/event")
-@CrossOrigin
 public class EventController {
     @Autowired
     ImpEventService eventService;

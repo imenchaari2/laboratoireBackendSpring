@@ -40,21 +40,20 @@ public class MemberImpl implements IMemberService {
     public Member addMember(Member m) {
         m.setCreatedDate(new Date());
         m.setPassword(encoder.encode(m.getPassword()));
-        System.out.println(m.getRole());
-        String role = m.getRole();
-        switch (role) {
-            case "admin" -> {
-                role = String.valueOf(ERole.ROLE_ADMIN);
-            }
-            case "student" -> {
-                role = String.valueOf(ERole.ROLE_STUDENT);
-            }
-            case "teacher" -> {
-                role = String.valueOf(ERole.ROLE_TEACHER);
-            }
-            default -> role = null;
-        }
-        m.setRole(role);
+//        String role = m.getRole();
+//        switch (role) {
+//            case "admin" -> {
+//                role = String.valueOf(ERole.ROLE_ADMIN);
+//            }
+//            case "student" -> {
+//                role = String.valueOf(ERole.ROLE_STUDENT);
+//            }
+//            case "teacher" -> {
+//                role = String.valueOf(ERole.ROLE_TEACHER);
+//            }
+//            default -> role = null;
+//        }
+//        m.setRole(role);
         memberRepository.save(m);
         return m;
     }
@@ -102,11 +101,14 @@ public class MemberImpl implements IMemberService {
     }
 
     public List<Member> findAll() {
-        return memberRepository.findAll();
+        List<Member> membersList = memberRepository.findAll();
+        var filtered = membersList.stream().filter(member ->
+                !Objects.equals(member.getRole(), ERole.ROLE_ADMIN.name())).toList();
+        return new ArrayList<>(filtered);
     }
 
     @Override
-    public List<Student> findByFirstNameAndLastNameAndCinAndDiploma(String firstName, String lastName, String cin, String diploma) {
+    public List<Student> findByFirstNameAndLastNameAndCinAndType(String firstName, String lastName, String cin, String type) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         List<Predicate> predicates = new ArrayList<>();
         CriteriaQuery<Student> cq = cb.createQuery(Student.class);
@@ -121,8 +123,8 @@ public class MemberImpl implements IMemberService {
         if (cin != null) {
             predicates.add(cb.like(teacher.get("cin"), "%" + cin + "%"));
         }
-        if (diploma != null) {
-            predicates.add(cb.like(teacher.get("diploma"), "%" + diploma + "%"));
+        if (type != null) {
+            predicates.add(cb.like(teacher.get("type"), "%" + type + "%"));
         }
         cq.where(predicates.toArray(new Predicate[0]));
 

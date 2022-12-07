@@ -1,9 +1,6 @@
 package com.example.msmembre.controller;
 
-import com.example.msmembre.entities.File;
-import com.example.msmembre.entities.Member;
-import com.example.msmembre.entities.Student;
-import com.example.msmembre.entities.TeacherResearcher;
+import com.example.msmembre.entities.*;
 import com.example.msmembre.repositories.FileRepository;
 import com.example.msmembre.repositories.MemberRepository;
 import com.example.msmembre.service.IMemberService;
@@ -98,6 +95,11 @@ public class MemberController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + databaseFile.getName() + "\"")
                 .body(new ByteArrayResource(databaseFile.getData()));
     }
+    @PostMapping("/uploadFile")
+    public File uploadFile(@RequestPart("file") MultipartFile file) throws IOException {
+        File cv = new File(file.getOriginalFilename(), file.getContentType(), file.getBytes());
+        return fileRepository.save(cv);
+    }
 
     @PostMapping(value = "/addStudent", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
 //    @PreAuthorize("hasRole('ADMIN')")
@@ -118,6 +120,7 @@ public class MemberController {
         } else {
             student.setCv(fileRepository.save(cv));
         }
+        student.setRole(ERole.ROLE_STUDENT.name());
         return iMemberService.addMember(student);
     }
 
@@ -141,6 +144,7 @@ public class MemberController {
         } else {
             teacherResearcher.setCv(fileRepository.save(cv));
         }
+        teacherResearcher.setRole(ERole.ROLE_TEACHER.name());
         return iMemberService.addMember(teacherResearcher);
     }
 
@@ -201,8 +205,8 @@ public class MemberController {
     public List<Student> findByFirstNameOrLastName(@RequestParam String firstName,
                                                    @RequestParam String lastName,
                                                    @RequestParam String cin,
-                                                   @RequestParam String diploma) {
-        return iMemberService.findByFirstNameAndLastNameAndCinAndDiploma(firstName, lastName, cin, diploma);
+                                                   @RequestParam String type) {
+        return iMemberService.findByFirstNameAndLastNameAndCinAndType(firstName, lastName, cin, type);
     }
 
     @GetMapping("/findTeacherBySearch")

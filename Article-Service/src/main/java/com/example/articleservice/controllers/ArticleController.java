@@ -1,80 +1,107 @@
 package com.example.articleservice.controllers;
 
-import com.example.articleservice.beans.MemberBean;
 import com.example.articleservice.entities.Article;
+import com.example.articleservice.entities.File;
 import com.example.articleservice.proxies.MemberProxy;
+import com.example.articleservice.repositories.FileRepository;
 import com.example.articleservice.services.ImpArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDate;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
 @RestController
 @RequestMapping(path = "/api/article")
-@CrossOrigin
 public class ArticleController {
     @Autowired
     ImpArticleService articleService;
     @Autowired
     MemberProxy memberProxy;
-    @PostMapping(value = "/addArticle")
-    public Article addArticle(@RequestBody Article article){
+    @Autowired
+    FileRepository fileRepository;
+
+    @GetMapping("/downloadFile/{fileName:.+}")
+    public ResponseEntity<Resource> downloadFile(@PathVariable String fileName, HttpServletRequest request) {
+        return memberProxy.downloadFile(fileName,request);
+    }
+
+    @PostMapping(value = "/addArticle", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public Article addArticle(@ModelAttribute("article") Article article,
+                              @RequestPart("file") MultipartFile file) throws IOException {
+        File source = new File(file.getOriginalFilename(), file.getContentType(), file.getBytes());
+        if (fileRepository.findAll().contains(source)) {
+            article.setPdfSource(source);
+        } else {
+            article.setPdfSource(fileRepository.save(source));
+        }
         return articleService.addArticle(article);
     }
-    @PutMapping(value="/updateArticle/{id}")
-    public Article updateArticle(@PathVariable Long id, @RequestBody Article article)
-    {
+
+    @PutMapping(value = "/updateArticle/{id}")
+    public Article updateArticle(@PathVariable Long id,
+                                 Article article,
+                                 @RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
+        if (file != null) {
+        File source = new File(file.getOriginalFilename(), file.getContentType(), file.getBytes());
+        if (fileRepository.findAll().contains(source)) {
+            article.setPdfSource(source);
+        } else {
+            article.setPdfSource(fileRepository.save(source));
+        }}
         article.setArticleId(id);
         return articleService.updateArticle(article);
     }
+
     @GetMapping(value = "/findArticle/{id}")
-    public Article findOneArticle(@PathVariable Long id)
-    {
+    public Article findOneArticle(@PathVariable Long id) {
         return articleService.findArticleById(id);
     }
+
     @GetMapping(value = "/findArticleBySearch")
-    public List<Article> findArticleByTypeMatchesRegex(@RequestParam String title,@RequestParam String type)
-    {
-        return articleService.findArticleByTitleAndType(title,type);
+    public List<Article> findArticleByTypeMatchesRegex(@RequestParam String title, @RequestParam String type) {
+        return articleService.findArticleByTitleAndType(title, type);
     }
+
     @GetMapping(value = "/articles")
-    public List<Article> findAll()
-    {
+    public List<Article> findAll() {
         return articleService.findAllArticles();
     }
+
     @DeleteMapping(value = "/deleteArticle/{id}")
-    public void deleteArticle(@PathVariable Long id)
-    {
+    public void deleteArticle(@PathVariable Long id) {
         articleService.deleteArticle(id);
     }
-    @PutMapping(value="/affectAuthor/{idMember}/{idArticle}")
-	public Article affectAuthorToArticle(@PathVariable Long idMember , @PathVariable Long idArticle )
-	{
+
+    @PutMapping(value = "/affectAuthor/{idMember}/{idArticle}")
+    public Article affectAuthorToArticle(@PathVariable Long idMember, @PathVariable Long idArticle) {
         return articleService.affectAuthorToArticle(idMember, idArticle);
-	}
-	@GetMapping("/articlesByMember/{idMember}")
-	public List<Article> getAllArticlesByMember(@PathVariable Long idMember)
-	{
+    }
+
+    @GetMapping("/articlesByMember/{idMember}")
+    public List<Article> getAllArticlesByMember(@PathVariable Long idMember) {
         return articleService.getAllArticlesByMember(idMember);
     }
+
     @GetMapping("/articlesByAuthorName")
-    public List<Article> getAllArticlesByAuthorName(@RequestParam String name)
-    {
+    public List<Article> getAllArticlesByAuthorName(@RequestParam String name) {
         return articleService.getAllArticlesByAuthorName(name);
     }
+
     @GetMapping("/findByCreatedDatePeriod")
     public List<Article> findArticleByCreatedDateBetween(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date createdDateGT,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date createdDateLT) {
-       return articleService.findArticleByCreatedDateBetween(createdDateGT,createdDateLT);
+        return articleService.findArticleByCreatedDateBetween(createdDateGT, createdDateLT);
 
     }
 }

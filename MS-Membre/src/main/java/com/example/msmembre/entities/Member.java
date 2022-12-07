@@ -26,7 +26,7 @@ public abstract class Member implements Serializable {
     private String lastName;
     @Transient
     private String fullName;
-    private String type;
+
     @NonNull
     private String cin;
     @NonNull
