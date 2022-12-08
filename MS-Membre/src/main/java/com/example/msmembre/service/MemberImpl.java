@@ -88,7 +88,6 @@ public class MemberImpl implements IMemberService {
         m.setCreatedDate(member.getCreatedDate());
         if (!m.getPassword().equals(member.getPassword())) {
             m.setPassword(encoder.encode(m.getPassword()));
-
         }
         if (cvFile == null) {
             m.setCv(member.getCv());

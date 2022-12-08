@@ -8,6 +8,7 @@ import com.google.common.collect.Lists;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -22,9 +23,12 @@ public class ImpEventService implements IEventService {
     MemberProxy memberProxy;
 
     @Override
-    public Event addEvent(Event event) {
-
-        return this.eventRepository.save(event);
+    public Event addEvent(Event event, List<Long> membersIds, Long idCreator) {
+        event.setCreatorId(idCreator);
+        event.setMembersIds(membersIds);
+        event.getMembersIds().add(idCreator);
+        List<String> names = Lists.newArrayList();
+        return getEvent(event, names);
     }
 
     @Override
@@ -33,16 +37,33 @@ public class ImpEventService implements IEventService {
     }
 
     @Override
-    public Event updateEvent(Event event) {
-        Event event1 = eventRepository.findById(event.get_id()).get();
-        event.setMemberName(event1.getMemberName());
-        event.setMemberId(event1.getMemberId());
-        return this.eventRepository.saveAndFlush(event);
+    public Event affectMembersToEvent(List<Long> ids, Long idEvent) {
+        Event event1 = eventRepository.findById(idEvent).get();
+        List<String> names = Lists.newArrayList();
+        List<Long> membersIds = Lists.newArrayList();
+        event1.getMembersIds().clear();
+        membersIds.add(event1.getCreatorId());
+        ids.forEach(id -> {
+            if (!membersIds.contains(id)) {
+                membersIds.add(id);
+            }
+        });
+        event1.setMembersIds(membersIds);
+        return getEvent(event1, names);
     }
 
-    @Override
-    public Event findEventById(long id) {
-        return this.eventRepository.findById(id).get();
+    private Event getEvent(Event event1, List<String> names) {
+        event1.getMembersIds().forEach(id -> {
+            MemberBean memberBean1 = memberProxy.getMemberById(id).get();
+            if (!Objects.equals(memberBean1.getRole(), "ROLE_ADMIN")) {
+                names.add(memberBean1.getFirstName() + " " + memberBean1.getLastName());
+            } else {
+                names.add("ADMIN");
+            }
+        });
+        event1.setMembersNames(null);
+        event1.setMembersNames(names);
+        return this.eventRepository.saveAndFlush(event1);
     }
 
     @Override
@@ -50,27 +71,40 @@ public class ImpEventService implements IEventService {
         List<Event> events = eventRepository.findAll();
         List<MemberBean> members = memberProxy.getAllMembers();
         List<Long> presentMembersIds = new ArrayList<>();
+        List<String> presentMembersNames = new ArrayList<>();
         members.forEach(member -> {
             presentMembersIds.add(member.getId());
+            presentMembersNames.add("ADMIN");
+            presentMembersNames.add(member.getFirstName() + " " + member.getLastName());
         });
         events.forEach(event -> {
-                if (!presentMembersIds.contains(event.getMemberId())) {
-//                    event.setMemberId(null);
-//                    event.setMemberName(null);
-//                    eventRepository.saveAndFlush(event);
-                    deleteEvent(event.get_id());
-                } else {
-                    MemberBean memberBean1 = memberProxy.getMemberById(event.getMemberId()).get();
-                    if (!Objects.equals(memberBean1.getRole(), "ROLE_ADMIN")) {
-                        event.setMemberName(memberBean1.getFirstName() + " " + memberBean1.getLastName());
-                        eventRepository.saveAndFlush(event);
-                    } else {
-                        event.setMemberName("ADMIN");
-                        eventRepository.saveAndFlush(event);
-                    }
+                    event.getMembersIds().forEach(id -> {
+                        if (!presentMembersIds.contains(id)) {
+                            event.getMembersIds().remove(id);
+                        }
+                    });
+                    event.getMembersNames().forEach(name -> {
+                        System.out.println(presentMembersNames.contains(name));
+                        if (!presentMembersNames.contains(name)) {
+                            event.getMembersNames().remove(name);
+                        }
+                    });
+                    eventRepository.saveAndFlush(event);
                 }
-        });
+        );
         return events;
+    }
+
+    @Override
+    public Event updateEvent(Event event) {
+        Event event1 = eventRepository.findById(event.get_id()).get();
+        event.setCreatorId(event1.getCreatorId());
+        return this.eventRepository.saveAndFlush(event);
+    }
+
+    @Override
+    public Event findEventById(Long id) {
+        return this.eventRepository.findById(id).get();
     }
 
     @Override
@@ -92,8 +126,11 @@ public class ImpEventService implements IEventService {
     public List<Event> getAllEventsByMember(Long idMember) {
         List<Event> eventsByMember = Lists.newArrayList();
         List<Event> events = eventRepository.findAll();
-        var eventList = events.stream().filter(event -> event.getMemberId().equals(idMember)).toList();
-        eventsByMember.addAll(eventList);
+        events.forEach(event -> {
+            if (event.getMembersIds().contains(idMember)) {
+                eventsByMember.add(event);
+            }
+        });
         return eventsByMember;
     }
 }
