@@ -99,8 +99,11 @@ public class MemberImpl implements IMemberService {
         m.setSupervisor(member.getSupervisor());
         return memberRepository.saveAndFlush(m);
     }
-
     public List<Member> findAll() {
+        return memberRepository.findAll();
+
+    }
+    public List<Member> findAllAuthors() {
         List<Member> membersList = memberRepository.findAll();
         var filtered = membersList.stream().filter(member ->
                 !Objects.equals(member.getRole(), ERole.ROLE_ADMIN.name())).toList();

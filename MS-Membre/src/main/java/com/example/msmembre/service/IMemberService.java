@@ -19,6 +19,7 @@ public interface IMemberService {
     Optional<Member> findMemberById(Long id);
 
     List<Member> findAll();
+    List<Member> findAllAuthors();
 
     List<Student>findByFirstNameAndLastNameAndCinAndType(String firstName,String lastName,String cin,String type);
     List<TeacherResearcher>findByFirstNameAndLastNameAndCinAndEtablishmentAndGrade(String firstName, String lastName,String cin,String etablishment,String grade);

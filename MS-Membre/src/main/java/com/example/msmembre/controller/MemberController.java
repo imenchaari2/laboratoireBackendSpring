@@ -199,6 +199,10 @@ public class MemberController {
     public List<Member> findAllMembers() {
         return iMemberService.findAll();
     }
+    @GetMapping(value = "/authors")
+    public List<Member> findAllAuthors() {
+        return iMemberService.findAllAuthors();
+    }
 
 
     @GetMapping("/findStudentBySearch")
