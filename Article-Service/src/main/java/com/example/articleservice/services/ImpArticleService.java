@@ -17,6 +17,7 @@ import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class ImpArticleService implements IArticleService {
@@ -73,15 +74,27 @@ public class ImpArticleService implements IArticleService {
     public List<Article> findAllArticles() {
 
         List<Article> articles = articleRepository.findAll();
+        List<MemberBean> members = memberProxy.getAllMembers();
+        List<Long> presentMembersIds = new ArrayList<>();
+        members.forEach(member -> {
+            presentMembersIds.add(member.getId());
+        });
         articles.forEach(article -> {
-            if (article.getAuthorId() != null) {
-                MemberBean memberBean = memberProxy.getMemberById(article.getAuthorId());
-                article.setAuthorName(memberBean.getFirstName() + " " + memberBean.getLastName());
+            if (!presentMembersIds.contains(article.getAuthorId())) {
+//                    event.setMemberId(null);
+//                    event.setMemberName(null);
+//                    eventRepository.saveAndFlush(event);
+                deleteArticle(article.getArticleId());
             } else {
-                article.setAuthorId(null);
-                article.setAuthorName(null);
+                MemberBean memberBean1 = memberProxy.getMemberById(article.getAuthorId());
+                if (!Objects.equals(memberBean1.getRole(), "ROLE_ADMIN")) {
+                    article.setAuthorName(memberBean1.getFirstName() + " " + memberBean1.getLastName());
+                    articleRepository.saveAndFlush(article);
+                } else {
+                    article.setAuthorName("ADMIN");
+                    articleRepository.saveAndFlush(article);
+                }
             }
-            articleRepository.saveAndFlush(article);
         });
         return articles;
     }

@@ -9,4 +9,5 @@ public class MemberBean {
     private String type;
     private String cin;
     private String email;
+    private String role;
 }
