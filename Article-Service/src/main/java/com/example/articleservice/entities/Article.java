@@ -7,7 +7,9 @@ import lombok.NonNull;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Data
@@ -19,8 +21,11 @@ public class Article {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long articleId;
-    private Long authorId;
-    private String authorName;
+    private Long creatorId;
+    @ElementCollection
+    private List<Long> membersIds = new ArrayList<>();
+    @ElementCollection
+    private List<String> membersNames = new ArrayList<>();
     @NonNull
     private String title;
     @NonNull

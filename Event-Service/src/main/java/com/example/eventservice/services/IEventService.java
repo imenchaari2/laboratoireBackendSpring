@@ -7,7 +7,7 @@ import java.util.Date;
 import java.util.List;
 
 public interface IEventService {
-    Event addEvent(Event event,List<Long> membersIds,Long idCreator);
+    Event addEvent(Event event,Long idCreator);
     void deleteEvent(Long id);
     Event updateEvent(Event event);
     Event findEventById(Long id);

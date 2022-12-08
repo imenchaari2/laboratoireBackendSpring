@@ -35,8 +35,9 @@ public class ArticleController {
         return memberProxy.downloadFile(fileName,request);
     }
 
-    @PostMapping(value = "/addArticle", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public Article addArticle(@ModelAttribute("article") Article article,
+    @PostMapping(value = "/addArticle/{creatorId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public Article addArticle(@PathVariable Long creatorId,
+                              @ModelAttribute("article") Article article,
                               @RequestPart("file") MultipartFile file) throws IOException {
         File source = new File(file.getOriginalFilename(), file.getContentType(), file.getBytes());
         if (fileRepository.findAll().contains(source)) {
@@ -44,7 +45,7 @@ public class ArticleController {
         } else {
             article.setPdfSource(fileRepository.save(source));
         }
-        return articleService.addArticle(article);
+        return articleService.addArticle(article,creatorId);
     }
 
     @PutMapping(value = "/updateArticle/{id}")
@@ -82,9 +83,9 @@ public class ArticleController {
         articleService.deleteArticle(id);
     }
 
-    @PutMapping(value = "/affectAuthor/{idMember}/{idArticle}")
-    public Article affectAuthorToArticle(@PathVariable Long idMember, @PathVariable Long idArticle) {
-        return articleService.affectAuthorToArticle(idMember, idArticle);
+    @PutMapping(value = "/affectAuthors/{idArticle}")
+    public Article affectAuthorToArticle(@RequestParam List<Long> membersIds, @PathVariable Long idArticle) {
+        return articleService.affectAuthorsToArticle(membersIds, idArticle);
     }
 
     @GetMapping("/articlesByMember/{idMember}")
@@ -92,10 +93,10 @@ public class ArticleController {
         return articleService.getAllArticlesByMember(idMember);
     }
 
-    @GetMapping("/articlesByAuthorName")
-    public List<Article> getAllArticlesByAuthorName(@RequestParam String name) {
-        return articleService.getAllArticlesByAuthorName(name);
-    }
+//    @GetMapping("/articlesByAuthorName")
+//    public List<Article> getAllArticlesByAuthorName(@RequestParam String name) {
+//        return articleService.getAllArticlesByAuthorName(name);
+//    }
 
     @GetMapping("/findByCreatedDatePeriod")
     public List<Article> findArticleByCreatedDateBetween(

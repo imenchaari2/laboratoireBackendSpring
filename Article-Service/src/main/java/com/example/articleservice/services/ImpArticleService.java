@@ -30,8 +30,11 @@ public class ImpArticleService implements IArticleService {
 
 
     @Override
-    public Article addArticle(Article article) {
-
+    public Article addArticle(Article article,Long idCreator) {
+        MemberBean memberBean1 = memberProxy.getMemberById(idCreator);
+        article.setCreatorId(idCreator);
+        article.getMembersIds().add(idCreator);
+        article.getMembersNames().add(memberBean1.getFirstName() + " " + memberBean1.getLastName());
         return articleRepository.save(article);
     }
 
@@ -42,6 +45,8 @@ public class ImpArticleService implements IArticleService {
 
     @Override
     public Article updateArticle(Article article) {
+        Article article1 = articleRepository.findById(article.getArticleId()).get();
+        article.setCreatorId(article1.getCreatorId());
         return articleRepository.saveAndFlush(article);
     }
 
@@ -72,66 +77,89 @@ public class ImpArticleService implements IArticleService {
 
     @Override
     public List<Article> findAllArticles() {
-
         List<Article> articles = articleRepository.findAll();
         List<MemberBean> members = memberProxy.getAllMembers();
         List<Long> presentMembersIds = new ArrayList<>();
+        List<String> presentMembersNames = new ArrayList<>();
         members.forEach(member -> {
             presentMembersIds.add(member.getId());
+            presentMembersNames.add("ADMIN");
+            presentMembersNames.add(member.getFirstName() + " " + member.getLastName());
         });
         articles.forEach(article -> {
-            if (!presentMembersIds.contains(article.getAuthorId())) {
-//                    event.setMemberId(null);
-//                    event.setMemberName(null);
-//                    eventRepository.saveAndFlush(event);
-                deleteArticle(article.getArticleId());
-            } else {
-                MemberBean memberBean1 = memberProxy.getMemberById(article.getAuthorId());
-                if (!Objects.equals(memberBean1.getRole(), "ROLE_ADMIN")) {
-                    article.setAuthorName(memberBean1.getFirstName() + " " + memberBean1.getLastName());
-                    articleRepository.saveAndFlush(article);
-                } else {
-                    article.setAuthorName("ADMIN");
+                    article.getMembersIds().forEach(id -> {
+                        if (!presentMembersIds.contains(id)) {
+                            article.getMembersIds().remove(id);
+                        }
+                    });
+                    article.getMembersNames().forEach(name -> {
+                        System.out.println(presentMembersNames.contains(name));
+                        if (!presentMembersNames.contains(name)) {
+                            article.getMembersNames().remove(name);
+                        }
+                    });
                     articleRepository.saveAndFlush(article);
                 }
-            }
-        });
+        );
         return articles;
     }
 
     @Override
-    public Article affectAuthorToArticle(Long idAuthor, Long idArticle) {
-        MemberBean memberBean = memberProxy.getMemberById(idAuthor);
-        Article article = findArticleById(idArticle);
-        article.setAuthorId(idAuthor);
-        article.setAuthorName(memberBean.getFirstName() + " " + memberBean.getLastName());
-        return articleRepository.saveAndFlush(article);
+    public Article affectAuthorsToArticle(List<Long> ids, Long idArticle) {
+        Article article = articleRepository.findById(idArticle).get();
+        List<String> names = Lists.newArrayList();
+        List<Long> membersIds = Lists.newArrayList();
+        article.getMembersIds().clear();
+        membersIds.add(article.getCreatorId());
+        ids.forEach(id -> {
+            if (!membersIds.contains(id)) {
+                membersIds.add(id);
+            }
+        });
+        article.setMembersIds(membersIds);
+        return getArticle(article, names);
+    }
+    private Article getArticle(Article article1, List<String> names) {
+        article1.getMembersIds().forEach(id -> {
+            MemberBean memberBean1 = memberProxy.getMemberById(id);
+            if (!Objects.equals(memberBean1.getRole(), "ROLE_ADMIN")) {
+                names.add(memberBean1.getFirstName() + " " + memberBean1.getLastName());
+            } else {
+                names.add("ADMIN");
+            }
+        });
+        article1.setMembersNames(null);
+        article1.setMembersNames(names);
+        return this.articleRepository.saveAndFlush(article1);
     }
 
     @Override
     public List<Article> getAllArticlesByMember(Long idMember) {
         List<Article> articlesByMember = Lists.newArrayList();
         List<Article> articles = articleRepository.findAll();
-        var articleList = articles.stream().filter(article -> article.getAuthorId().equals(idMember)).toList();
-        articlesByMember.addAll(articleList);
+        articles.forEach(article -> {
+            if (article.getMembersIds().contains(idMember)) {
+                articlesByMember.add(article);
+            }
+        });
         return articlesByMember;
     }
 
-    @Override
-    public List<Article> getAllArticlesByAuthorName(String name) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        List<Predicate> predicates = new ArrayList<>();
-        CriteriaQuery<Article> cq = cb.createQuery(Article.class);
-        Root<Article> article = cq.from(Article.class);
-
-        if (name != null) {
-            predicates.add(cb.like(article.get("authorName"), "%" + name + "%"));
-        }
-
-        cq.where(predicates.toArray(new Predicate[0]));
-
-        return em.createQuery(cq).getResultList();
-    }
+//    @Override
+//    public List<Article> getAllArticlesByAuthorName(String name) {
+//        CriteriaBuilder cb = em.getCriteriaBuilder();
+//        List<Predicate> predicates = new ArrayList<>();
+//        CriteriaQuery<Article> cq = cb.createQuery(Article.class);
+//        Root<Article> article = cq.from(Article.class);
+//
+//        if (name != null) {
+//            predicates.add(cb.like(article.get("authorName"), "%" + name + "%"));
+//        }
+//
+//        cq.where(predicates.toArray(new Predicate[0]));
+//
+//        return em.createQuery(cq).getResultList();
+//    }
 
     @Override
     public List<Article> findArticleByCreatedDateBetween(Date createdDateGT, Date createdDateLT) {

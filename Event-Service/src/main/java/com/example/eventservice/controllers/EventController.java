@@ -15,8 +15,8 @@ public class EventController {
     @Autowired
     ImpEventService eventService;
     @PostMapping(value = "/addEvent/{creatorId}")
-    public Event addEvent(@PathVariable Long creatorId,@RequestBody Event event,@RequestParam List<Long> membersIds){
-        return eventService.addEvent(event,membersIds,creatorId);
+    public Event addEvent(@PathVariable Long creatorId,@RequestBody Event event){
+        return eventService.addEvent(event,creatorId);
     }
     @PutMapping(value="/updateEvent/{id}")
     public Event updateEvent(@PathVariable Long id, @RequestBody Event event)

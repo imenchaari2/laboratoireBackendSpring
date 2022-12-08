@@ -23,12 +23,10 @@ public class ImpEventService implements IEventService {
     MemberProxy memberProxy;
 
     @Override
-    public Event addEvent(Event event, List<Long> membersIds, Long idCreator) {
+    public Event addEvent(Event event, Long idCreator) {
         event.setCreatorId(idCreator);
-        event.setMembersIds(membersIds);
         event.getMembersIds().add(idCreator);
-        List<String> names = Lists.newArrayList();
-        return getEvent(event, names);
+        return this.eventRepository.saveAndFlush(event);
     }
 
     @Override
