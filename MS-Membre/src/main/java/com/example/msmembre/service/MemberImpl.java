@@ -41,20 +41,6 @@ public class MemberImpl implements IMemberService {
     public Member addMember(Member m) {
         m.setCreatedDate(new Date());
         m.setPassword(encoder.encode(m.getPassword()));
-//        String role = m.getRole();
-//        switch (role) {
-//            case "admin" -> {
-//                role = String.valueOf(ERole.ROLE_ADMIN);
-//            }
-//            case "student" -> {
-//                role = String.valueOf(ERole.ROLE_STUDENT);
-//            }
-//            case "teacher" -> {
-//                role = String.valueOf(ERole.ROLE_TEACHER);
-//            }
-//            default -> role = null;
-//        }
-//        m.setRole(role);
         memberRepository.save(m);
         return m;
     }
@@ -83,6 +69,7 @@ public class MemberImpl implements IMemberService {
         if (photoFile == null) {
             m.setPhoto(member.getPhoto());
         }
+        m.setRole(member.getRole());
         m.setCreatedDate(member.getCreatedDate());
         return memberRepository.saveAndFlush(m);
     }
@@ -94,6 +81,7 @@ public class MemberImpl implements IMemberService {
         if (!m.getPassword().equals(member.getPassword())) {
             m.setPassword(encoder.encode(m.getPassword()));
         }
+        m.setRole(member.getRole());
         if (cvFile == null) {
             m.setCv(member.getCv());
         }

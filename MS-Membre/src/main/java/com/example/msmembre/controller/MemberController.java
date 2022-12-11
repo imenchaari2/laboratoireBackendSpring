@@ -97,6 +97,29 @@ public class MemberController {
         }
         return memberRepository.saveAndFlush(member);
     }
+    @PutMapping("/updateCv/{idMember}/{idCv}")
+    public Member uplaodCv(@PathVariable Long idMember, @PathVariable Long idCv, @RequestParam("cvFile") MultipartFile file) throws IOException {
+        File cv = fileRepository.findById(idCv).get();
+        Member member = findMemberById(idMember).get();
+        cv.setName(file.getOriginalFilename());
+        cv.setType(file.getContentType());
+        cv.setData(file.getBytes());
+        fileRepository.saveAndFlush(cv);
+        member.setPhoto(cv);
+        return memberRepository.saveAndFlush(member);
+    }
+    @PutMapping("/updateCv/{idMember}")
+    public Member uplaodAdminCv(@PathVariable Long idMember,@RequestParam("cvFile") MultipartFile file) throws IOException {
+        Member member = findMemberById(idMember).get();
+        File cv = new File(file.getOriginalFilename(), file.getContentType(), file.getBytes());
+        if (fileRepository.findAll().contains(cv)) {
+            member.setCv(cv);
+        } else {
+            member.setPhoto(fileRepository.save(cv));
+        }
+        return memberRepository.saveAndFlush(member);
+    }
+
 
 
     @GetMapping("/downloadFile/{fileName:.+}")

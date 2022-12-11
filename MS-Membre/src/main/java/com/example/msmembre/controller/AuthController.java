@@ -1,5 +1,6 @@
 package com.example.msmembre.controller;
 
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -83,7 +84,7 @@ public class AuthController {
 
     // Create new user's account
     Member user = new Admin(signUpRequest.getEmail(), encoder.encode(signUpRequest.getPassword()));
-
+user.setCreatedDate(new Date());
     user.setRole(ERole.ROLE_ADMIN.name());
     memberRepository.save(user);
 
