@@ -60,7 +60,7 @@ public class ArticleController {
             article.setPdfSource(fileRepository.save(source));
         }}
         article.setArticleId(id);
-        return articleService.updateArticle(article);
+        return articleService.updateArticle(article,file);
     }
 
     @GetMapping(value = "/findArticle/{id}")

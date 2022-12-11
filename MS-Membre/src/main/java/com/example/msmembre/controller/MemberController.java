@@ -1,6 +1,8 @@
 package com.example.msmembre.controller;
 
 import com.example.msmembre.entities.*;
+import com.example.msmembre.payload.response.JwtResponse;
+import com.example.msmembre.payload.response.MessageResponse;
 import com.example.msmembre.repositories.FileRepository;
 import com.example.msmembre.repositories.MemberRepository;
 import com.example.msmembre.service.IMemberService;
@@ -262,5 +264,8 @@ public class MemberController {
     public List<Student> getAllStudentsBySupervisorName(@RequestParam String name) {
         return iMemberService.getAllStudentsBySupervisorName(name);
     }
-
+    @PutMapping(value = "/changePassword/{id}")
+    public ResponseEntity<?> changePassword(@RequestParam String currentPass,@RequestParam String newPass, @PathVariable Long id) {
+        return ResponseEntity.ok(new MessageResponse(iMemberService.changePassword(id,currentPass,newPass)));
+    }
 }

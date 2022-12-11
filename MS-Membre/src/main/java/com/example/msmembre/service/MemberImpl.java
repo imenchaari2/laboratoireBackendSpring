@@ -2,6 +2,7 @@ package com.example.msmembre.service;
 
 
 import com.example.msmembre.entities.*;
+import com.example.msmembre.payload.request.UpdateRequest;
 import com.example.msmembre.repositories.MemberRepository;
 import com.example.msmembre.repositories.StudentRepository;
 import com.example.msmembre.repositories.TeacherResearcherRepository;
@@ -69,7 +70,8 @@ public class MemberImpl implements IMemberService {
     @Override
     public TeacherResearcher updateTeacher(TeacherResearcher m, MultipartFile cvFile, MultipartFile photoFile) {
         Member member = memberRepository.findById(m.getId()).get();
-        if (!m.getPassword().equals(member.getPassword())) {
+        if (!encoder.matches(m.getPassword(), member.getPassword())) {
+
             m.setPassword(encoder.encode(m.getPassword()));
         }
         if (cvFile == null) {
@@ -81,13 +83,22 @@ public class MemberImpl implements IMemberService {
         m.setCreatedDate(member.getCreatedDate());
         return memberRepository.saveAndFlush(m);
     }
+    @Override
+    public UpdateRequest updateMemberInfos(UpdateRequest m) {
+//        Member member = memberRepository.findById(m.getId()).get();
+//        return memberRepository.saveAndFlush(m);
+        return null;
+    }
 
     @Override
     public Student updateStudent(Student m, MultipartFile cvFile, MultipartFile photoFile) {
         Student member = studentRepository.findById(m.getId()).get();
         m.setCreatedDate(member.getCreatedDate());
-        if (!m.getPassword().equals(member.getPassword())) {
+        if (!encoder.matches(m.getPassword(), member.getPassword())) {
+
             m.setPassword(encoder.encode(m.getPassword()));
+        }else{
+            m.setPassword(member.getPassword());
         }
         if (cvFile == null) {
             m.setCv(member.getCv());
@@ -98,10 +109,12 @@ public class MemberImpl implements IMemberService {
         m.setSupervisor(member.getSupervisor());
         return memberRepository.saveAndFlush(m);
     }
+
     public List<Member> findAll() {
         return memberRepository.findAll();
 
     }
+
     public List<Member> findAllAuthors() {
         List<Member> membersList = memberRepository.findAll();
         var filtered = membersList.stream().filter(member ->
@@ -215,5 +228,18 @@ public class MemberImpl implements IMemberService {
         return studentRepository.findStudentBySupervisor_FirstNameContainingIgnoreCase(name);
     }
 
+    @Override
+    public String changePassword(Long id, String currentPass, String NewPass) {
+        Member member = memberRepository.findById(id).get();
+        if (encoder.matches(currentPass, member.getPassword())) {
+            member.setPassword(encoder.encode(NewPass));
+            memberRepository.saveAndFlush(member);
+            System.out.println(encoder.matches(currentPass, member.getPassword()));
 
+            return "password changed successfully";
+
+        } else {
+            return "mismatch current password";
+        }
+    }
 }

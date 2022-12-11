@@ -7,6 +7,7 @@ import com.example.articleservice.repositories.ArticleRepository;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -32,6 +33,7 @@ public class ImpArticleService implements IArticleService {
     @Override
     public Article addArticle(Article article,Long idCreator) {
         MemberBean memberBean1 = memberProxy.getMemberById(idCreator);
+        article.setCreatedDate(new Date());
         article.setCreatorId(idCreator);
         article.getMembersIds().add(idCreator);
         article.getMembersNames().add(memberBean1.getFirstName() + " " + memberBean1.getLastName());
@@ -44,8 +46,14 @@ public class ImpArticleService implements IArticleService {
     }
 
     @Override
-    public Article updateArticle(Article article) {
+    public Article updateArticle(Article article, MultipartFile file) {
         Article article1 = articleRepository.findById(article.getArticleId()).get();
+        if (file == null) {
+            article.setPdfSource(article1.getPdfSource());
+        }
+        article.setCreatedDate(article1.getCreatedDate());
+        article.setMembersNames(article1.getMembersNames());
+        article.setMembersIds(article1.getMembersIds());
         article.setCreatorId(article1.getCreatorId());
         return articleRepository.saveAndFlush(article);
     }
@@ -128,7 +136,7 @@ public class ImpArticleService implements IArticleService {
                 names.add("ADMIN");
             }
         });
-        article1.setMembersNames(null);
+        article1.getMembersNames().clear();
         article1.setMembersNames(names);
         return this.articleRepository.saveAndFlush(article1);
     }

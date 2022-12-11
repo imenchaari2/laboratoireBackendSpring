@@ -3,6 +3,7 @@ package com.example.msmembre.service;
 import com.example.msmembre.entities.Member;
 import com.example.msmembre.entities.Student;
 import com.example.msmembre.entities.TeacherResearcher;
+import com.example.msmembre.payload.request.UpdateRequest;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -14,7 +15,7 @@ public interface IMemberService {
     Member addMember(Member m);
 //    Member addMember(Member m,String cv, String photo);
     void deleteMember(Long id);
-
+    UpdateRequest updateMemberInfos(UpdateRequest m);
     TeacherResearcher updateTeacher(TeacherResearcher p,MultipartFile cvFile, MultipartFile photoFile);
     Optional<Member> findMemberById(Long id);
 
@@ -41,4 +42,5 @@ public interface IMemberService {
 
 
     Student updateStudent(Student student, MultipartFile cvFile, MultipartFile photoFile);
+    String changePassword(Long id,String currentPass , String NewPass);
 }

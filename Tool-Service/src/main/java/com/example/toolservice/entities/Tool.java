@@ -17,6 +17,7 @@ public class Tool {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Long memberId;
+    private String memberName;
     @Temporal(TemporalType.DATE)
     @NonNull
     private Date createdDate;
