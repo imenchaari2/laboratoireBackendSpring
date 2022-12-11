@@ -1,5 +1,6 @@
 package com.example.msmembre.service;
 
+import com.example.msmembre.entities.Admin;
 import com.example.msmembre.entities.Member;
 import com.example.msmembre.entities.Student;
 import com.example.msmembre.entities.TeacherResearcher;
@@ -15,7 +16,7 @@ public interface IMemberService {
     Member addMember(Member m);
 //    Member addMember(Member m,String cv, String photo);
     void deleteMember(Long id);
-    UpdateRequest updateMemberInfos(UpdateRequest m);
+    Admin updateMember(Long id, Admin m);
     TeacherResearcher updateTeacher(TeacherResearcher p,MultipartFile cvFile, MultipartFile photoFile);
     Optional<Member> findMemberById(Long id);
 

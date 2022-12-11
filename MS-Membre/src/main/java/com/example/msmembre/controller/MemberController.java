@@ -86,6 +86,18 @@ public class MemberController {
         member.setPhoto(photo);
         return memberRepository.saveAndFlush(member);
     }
+    @PutMapping("/updatePhoto/{idMember}")
+    public Member uplaodAdminImage(@PathVariable Long idMember,@RequestParam("imageFile") MultipartFile file) throws IOException {
+        Member member = findMemberById(idMember).get();
+        File img = new File(file.getOriginalFilename(), file.getContentType(), file.getBytes());
+        if (fileRepository.findAll().contains(img)) {
+            member.setPhoto(img);
+        } else {
+            member.setPhoto(fileRepository.save(img));
+        }
+        return memberRepository.saveAndFlush(member);
+    }
+
 
     @GetMapping("/downloadFile/{fileName:.+}")
     public ResponseEntity<Resource> downloadFile(@PathVariable String fileName, HttpServletRequest request) {
@@ -104,7 +116,6 @@ public class MemberController {
     }
 
     @PostMapping(value = "/addStudent", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-//    @PreAuthorize("hasRole('ADMIN')")
     public Member addMemberStudent(@ModelAttribute("student") Student student,
                                    @RequestPart("cvFile") MultipartFile cvFile,
                                    @RequestPart("photoFile") MultipartFile photoFile
@@ -195,6 +206,11 @@ public class MemberController {
             }        }
         teacherResearcher.setId(id);
         return iMemberService.updateTeacher(teacherResearcher, cvFile, photoFile);
+    }
+    @PutMapping(value = "/updateMember/{id}")
+    public Member updateMember(@PathVariable Long id, @RequestBody Admin member) {
+        member.setId(id);
+        return iMemberService.updateMember(id,member);
     }
 
     @GetMapping(value = "/members")

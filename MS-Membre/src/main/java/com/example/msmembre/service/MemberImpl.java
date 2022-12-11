@@ -70,8 +70,11 @@ public class MemberImpl implements IMemberService {
     @Override
     public TeacherResearcher updateTeacher(TeacherResearcher m, MultipartFile cvFile, MultipartFile photoFile) {
         Member member = memberRepository.findById(m.getId()).get();
-        if (!encoder.matches(m.getPassword(), member.getPassword())) {
-
+//        if (!encoder.matches(m.getPassword(), member.getPassword())) {
+//
+//            m.setPassword(encoder.encode(m.getPassword()));
+//        }
+        if (!m.getPassword().equals(member.getPassword())) {
             m.setPassword(encoder.encode(m.getPassword()));
         }
         if (cvFile == null) {
@@ -83,22 +86,13 @@ public class MemberImpl implements IMemberService {
         m.setCreatedDate(member.getCreatedDate());
         return memberRepository.saveAndFlush(m);
     }
-    @Override
-    public UpdateRequest updateMemberInfos(UpdateRequest m) {
-//        Member member = memberRepository.findById(m.getId()).get();
-//        return memberRepository.saveAndFlush(m);
-        return null;
-    }
 
     @Override
     public Student updateStudent(Student m, MultipartFile cvFile, MultipartFile photoFile) {
         Student member = studentRepository.findById(m.getId()).get();
         m.setCreatedDate(member.getCreatedDate());
-        if (!encoder.matches(m.getPassword(), member.getPassword())) {
-
+        if (!m.getPassword().equals(member.getPassword())) {
             m.setPassword(encoder.encode(m.getPassword()));
-        }else{
-            m.setPassword(member.getPassword());
         }
         if (cvFile == null) {
             m.setCv(member.getCv());
@@ -107,6 +101,18 @@ public class MemberImpl implements IMemberService {
             m.setPhoto(member.getPhoto());
         }
         m.setSupervisor(member.getSupervisor());
+        return memberRepository.saveAndFlush(m);
+    }
+    @Override
+    public Admin updateMember(Long id , Admin m) {
+        Member member = memberRepository.findById(m.getId()).get();
+        m.setRole(member.getRole());
+        m.setCreatedDate(member.getCreatedDate());
+        if (!m.getPassword().equals(member.getPassword())) {
+            m.setPassword(encoder.encode(m.getPassword()));
+        }
+        m.setCv(member.getCv());
+        m.setPhoto(member.getPhoto());
         return memberRepository.saveAndFlush(m);
     }
 
