@@ -105,7 +105,7 @@ public class MemberController {
         cv.setType(file.getContentType());
         cv.setData(file.getBytes());
         fileRepository.saveAndFlush(cv);
-        member.setPhoto(cv);
+        member.setCv(cv);
         return memberRepository.saveAndFlush(member);
     }
     @PutMapping("/updateCv/{idMember}")
@@ -115,7 +115,7 @@ public class MemberController {
         if (fileRepository.findAll().contains(cv)) {
             member.setCv(cv);
         } else {
-            member.setPhoto(fileRepository.save(cv));
+            member.setCv(fileRepository.save(cv));
         }
         return memberRepository.saveAndFlush(member);
     }
