@@ -96,6 +96,8 @@ public class ImpEventService implements IEventService {
     @Override
     public Event updateEvent(Event event) {
         Event event1 = eventRepository.findById(event.get_id()).get();
+        event.setMembersNames(event1.getMembersNames());
+        event.setMembersIds(event1.getMembersIds());
         event.setCreatorId(event1.getCreatorId());
         return this.eventRepository.saveAndFlush(event);
     }
