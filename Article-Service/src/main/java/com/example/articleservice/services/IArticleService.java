@@ -18,7 +18,7 @@ public interface IArticleService {
     List<Article> findAllArticles();
     Article affectAuthorsToArticle(List<Long> ids, Long idArticle );
     List<Article> getAllArticlesByMember(Long idMember);
-//    List<Article> getAllArticlesByAuthorName(String name);
+    List<Article> getAllArticlesByAuthorName(String name);
     List<Article> findArticleByCreatedDateBetween(Date createdDateGT, Date createdDateLT);
 
 }

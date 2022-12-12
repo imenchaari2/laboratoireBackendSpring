@@ -93,10 +93,10 @@ public class ArticleController {
         return articleService.getAllArticlesByMember(idMember);
     }
 
-//    @GetMapping("/articlesByAuthorName")
-//    public List<Article> getAllArticlesByAuthorName(@RequestParam String name) {
-//        return articleService.getAllArticlesByAuthorName(name);
-//    }
+    @GetMapping("/articlesByAuthorName")
+    public List<Article> getAllArticlesByAuthorName(@RequestParam String name) {
+        return articleService.getAllArticlesByAuthorName(name);
+    }
 
     @GetMapping("/findByCreatedDatePeriod")
     public List<Article> findArticleByCreatedDateBetween(

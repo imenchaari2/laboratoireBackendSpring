@@ -153,21 +153,19 @@ public class ImpArticleService implements IArticleService {
         return articlesByMember;
     }
 
-//    @Override
-//    public List<Article> getAllArticlesByAuthorName(String name) {
-//        CriteriaBuilder cb = em.getCriteriaBuilder();
-//        List<Predicate> predicates = new ArrayList<>();
-//        CriteriaQuery<Article> cq = cb.createQuery(Article.class);
-//        Root<Article> article = cq.from(Article.class);
-//
-//        if (name != null) {
-//            predicates.add(cb.like(article.get("authorName"), "%" + name + "%"));
-//        }
-//
-//        cq.where(predicates.toArray(new Predicate[0]));
-//
-//        return em.createQuery(cq).getResultList();
-//    }
+    @Override
+    public List<Article> getAllArticlesByAuthorName(String name) {
+        List<Article> articles = articleRepository.findAll();
+        List<Article> filteredArticles = Lists.newArrayList();
+        articles.forEach(article -> {
+            article.getMembersNames().forEach(memberName->{
+                if (memberName.contains(name)){
+                    filteredArticles.add(article);
+                }
+            });
+        });
+        return filteredArticles;
+    }
 
     @Override
     public List<Article> findArticleByCreatedDateBetween(Date createdDateGT, Date createdDateLT) {
