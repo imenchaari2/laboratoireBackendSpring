@@ -59,7 +59,7 @@ public class ImpEventService implements IEventService {
                 names.add("ADMIN");
             }
         });
-        event1.setMembersNames(null);
+        event1.getMembersNames().clear();
         event1.setMembersNames(names);
         return this.eventRepository.saveAndFlush(event1);
     }

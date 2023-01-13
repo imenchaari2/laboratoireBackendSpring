@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
 
-//@FeignClient(name = "MEMBER-SERVICE" ,url = "http://localhost:8087")
 @FeignClient(name = "MEMBER-SERVICE")
 
 public interface MemberProxy {

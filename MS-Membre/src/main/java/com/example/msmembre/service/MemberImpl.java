@@ -2,7 +2,6 @@ package com.example.msmembre.service;
 
 
 import com.example.msmembre.entities.*;
-import com.example.msmembre.payload.request.UpdateRequest;
 import com.example.msmembre.repositories.MemberRepository;
 import com.example.msmembre.repositories.StudentRepository;
 import com.example.msmembre.repositories.TeacherResearcherRepository;
